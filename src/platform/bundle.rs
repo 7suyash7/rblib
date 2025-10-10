@@ -21,6 +21,7 @@ use {
 		revm::db::BundleState,
 		rpc::types::mev::EthSendBundle,
 	},
+	reth_ethereum::primitives::WithEncoded,
 	serde::{
 		Deserialize,
 		Deserializer,
@@ -104,6 +105,25 @@ pub trait Bundle<P: Platform>:
 	/// metadata attached to it, so two bundles with the same transactions but
 	/// different metadata should have different hashes.
 	fn hash(&self) -> B256;
+
+	/// Returns an iterator that yields the bundle's transactions in a format
+	/// ready for execution.
+	///
+	/// By default, this wraps the plain `Recovered` transactions. Implementors
+	/// that store pre-encoded bytes can override this to provide the more
+	/// efficient `WithEncoded` wrapper.
+	fn executables<'a>(
+		&'a self,
+	) -> Box<
+		dyn Iterator<Item = WithEncoded<&'a Recovered<types::Transaction<P>>>> + 'a,
+	> {
+		Box::new(
+			self
+				.transactions()
+				.iter()
+				.map(|tx| WithEncoded::new(tx.encoded_2718().into(), tx)),
+		)
+	}
 }
 
 /// The eligibility of a bundle for inclusion in a block.
@@ -340,6 +360,20 @@ impl<P: Platform> Bundle<P> for FlashbotsBundle<P> {
 		}
 		// extra fields not taken into account in the hash
 		hasher.finalize()
+	}
+
+	fn executables<'a>(
+		&'a self,
+	) -> Box<
+		dyn Iterator<Item = WithEncoded<&'a Recovered<types::Transaction<P>>>> + 'a,
+	> {
+		Box::new(
+			self
+				.recovered
+				.iter()
+				.zip(self.inner.txs.iter())
+				.map(|(tx, bytes)| WithEncoded::new(bytes.clone(), tx)),
+		)
 	}
 }
 

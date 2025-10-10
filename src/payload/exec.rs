@@ -204,10 +204,10 @@ impl<P: Platform> Executable<P> {
 		let mut discarded = Vec::new();
 		let mut results = Vec::with_capacity(bundle.transactions().len());
 
-		for transaction in bundle.transactions() {
-			let tx_hash = transaction.tx_hash();
-			let optional = bundle.is_optional(tx_hash);
-			let allowed_to_fail = bundle.is_allowed_to_fail(tx_hash);
+		for transaction in bundle.executables() {
+			let tx_hash = *transaction.tx_hash();
+			let optional = bundle.is_optional(*tx_hash);
+			let allowed_to_fail = bundle.is_allowed_to_fail(*tx_hash);
 
 			let result = evm_config
 				.evm_with_env(&mut db, evm_env.clone())
