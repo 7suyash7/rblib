@@ -19,11 +19,11 @@ use {
 
 mod bundle;
 mod ethereum;
-mod ext;
 mod limits;
-
 pub mod types;
-pub use {bundle::*, ethereum::*, ext::*, limits::*};
+mod utils;
+
+pub use {bundle::*, ethereum::*, limits::*, utils::*};
 
 #[cfg(feature = "optimism")]
 mod optimism;
@@ -77,7 +77,7 @@ pub trait Platform:
 
 	/// Type that configures how bundles are represented and handled by the
 	/// platform.
-	type Bundle: Bundle<Self>;
+	type Bundle: Bundle<Self> + BundleExt<Self>;
 
 	/// Type that can provide limits for the payload building process.
 	/// If no limits are set on a pipeline explicitly, a default instance of this

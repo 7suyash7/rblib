@@ -160,7 +160,7 @@ impl Bundle<CustomPlatform> for CustomBundleType {
 		&self.txs
 	}
 
-	fn without_transaction(self, tx: alloy::primitives::TxHash) -> Self {
+	fn without_transaction(self, tx: TxHash) -> Self {
 		Self {
 			txs: self.txs.into_iter().filter(|t| *t.hash() != tx).collect(),
 			reverting_txs: self
@@ -181,11 +181,11 @@ impl Bundle<CustomPlatform> for CustomBundleType {
 		Eligibility::Eligible
 	}
 
-	fn is_allowed_to_fail(&self, tx: &alloy::primitives::TxHash) -> bool {
+	fn is_allowed_to_fail(&self, tx: &TxHash) -> bool {
 		self.reverting_txs.contains(tx)
 	}
 
-	fn is_optional(&self, tx: &alloy::primitives::TxHash) -> bool {
+	fn is_optional(&self, tx: &TxHash) -> bool {
 		self.dropping_txs.contains(tx)
 	}
 
@@ -255,6 +255,8 @@ impl Bundle<CustomPlatform> for CustomBundleType {
 		hasher.finalize()
 	}
 }
+
+impl BundleExt<CustomPlatform> for CustomBundleType {}
 
 fn transfer_tx(
 	signer: &PrivateKeySigner,

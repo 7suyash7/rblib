@@ -1,20 +1,15 @@
-//! Extension traits and utilities that improve the developer experience when
+//! Utilities that improve the developer experience when
 //! working platform-agnostic code.
 
 use {
 	crate::{alloy, prelude::*, reth},
 	alloy::{
-		consensus::transaction::TxHashRef,
 		network::{TransactionBuilder, TxSignerSync, UnbuiltTransactionError},
 		signers::Signature,
 	},
 	alloy_origin::consensus::Signed,
 	reth::primitives::Recovered,
 };
-
-mod bundle;
-
-pub use bundle::BundleExt;
 
 #[derive(Debug, thiserror::Error)]
 pub enum TransactionBuilderError<P: PlatformWithRpcTypes> {
