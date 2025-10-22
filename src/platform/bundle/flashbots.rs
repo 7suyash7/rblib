@@ -187,6 +187,22 @@ impl<P: Platform> Bundle<P> for FlashbotsBundle<P> {
 		// extra fields not taken into account in the hash
 		hasher.finalize()
 	}
+
+	/// Returns an iterator that yields the bundle's transactions in a format
+	/// ready for execution.
+	fn transactions_encoded(
+		&self,
+	) -> Box<
+		dyn Iterator<Item = WithEncoded<&Recovered<types::Transaction<P>>>> + '_,
+	> {
+		Box::new(
+			self
+				.recovered
+				.iter()
+				.zip(self.inner.txs.iter())
+				.map(|(tx, bytes)| WithEncoded::new(bytes.clone(), tx)),
+		)
+	}
 }
 
 impl<P: Platform> FlashbotsBundle<P> {
@@ -271,19 +287,5 @@ impl<P: Platform> TryFrom<EthSendBundle> for FlashbotsBundle<P> {
 			.collect::<Result<Vec<_>, _>>()?;
 
 		Ok(Self { inner, recovered })
-	}
-}
-
-impl<P: Platform> BundleExt<P> for FlashbotsBundle<P> {
-	/// Returns an iterator that yields the bundle's transactions in a format
-	/// ready for execution.
-	fn transactions_encoded(
-		&self,
-	) -> impl Iterator<Item = WithEncoded<&Recovered<types::Transaction<P>>>> {
-		self
-			.recovered
-			.iter()
-			.zip(self.inner.txs.iter())
-			.map(|(tx, bytes)| WithEncoded::new(bytes.clone(), tx))
 	}
 }

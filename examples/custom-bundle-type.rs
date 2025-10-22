@@ -256,8 +256,6 @@ impl Bundle<CustomPlatform> for CustomBundleType {
 	}
 }
 
-impl BundleExt<CustomPlatform> for CustomBundleType {}
-
 fn transfer_tx(
 	signer: &PrivateKeySigner,
 	nonce: u64,
